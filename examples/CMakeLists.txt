@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.13)
+
+add_executable(test_rk3_maxwell_plane_wave maxwell_plane_wave_rk3.c)
+
+target_link_libraries(test_rk3_maxwell_plane_wave PRIVATE gdon3d)
