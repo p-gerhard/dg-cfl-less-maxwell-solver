@@ -6,8 +6,8 @@
  * gdon3d is free software; you can redistribute it and/or modify
  * it under the terms of the GPLv3 license. See LICENSE for details.
  */
-#ifndef DG_H
-#define DG_H
+#ifndef DG_DG_H
+#define DG_DG_H
 
 #include <simulation/simulation.h>
 

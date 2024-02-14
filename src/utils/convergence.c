@@ -9,6 +9,7 @@
 #undef NDEBUG
 #include <assert.h>
 #include <math.h>
+#include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
 
@@ -83,12 +84,15 @@ void utils_l2_time_convergence(gdn_model *model, const int nb_run,
 
 		simulation_dump_info(k, &simu, error[k], order[k]);
 
-		// if (export_xdmf){
-		// 	char filename[1024];
-		// 	snprintf(filename, 1024, "wave_run_%d", k);
-		// 	// snprintf(filename, 1024, "maxwell_cos5_d3q4_cfl_mul_%d", coef[k]);
-		// 	io_save_all(&simu, filename, simu.itermax);
-		// }
+		if (export_xdmf){
+			char base[1024] = "wave_run";
+			size_t len_base = strlen(base);
+			size_t len_extra_tag = strlen("_000");
+			char *locfilename = (char *)malloc((len_base  + len_extra_tag + 1) * sizeof(char));
+			sprintf(locfilename, "%s_%03d", base, k+1);
+			io_save_all(&simu, locfilename, simu.itermax);
+			free(locfilename);
+		}
 	}
 	simulation_free(&simu);
 }

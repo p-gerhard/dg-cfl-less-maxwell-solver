@@ -13,6 +13,76 @@
 #include <gdon3d.h>
 #include "maxwell.h"
 
+static gdn_real msi_g(gdn_real x)
+{
+	const gdn_real val = sin(2. * M_PI * (x - 0.5));
+	// const gdn_real val = (x - 0.5) * (x - 0.5) * (x - 0.5);
+	// const gdn_real val = (x - 0.5) * (x - 0.5);
+	// const gdn_real val = 1.;
+	return val;
+}
+
+static gdn_real msi_f(gdn_real y, gdn_real z)
+{
+	const gdn_real val =
+		exp(-2 * M_PI * (y - 0.5)) * sin(2 * M_PI * (z - 0.5)) +
+		exp(-2 * M_PI * (z - 0.5)) * sin(2 * M_PI * (y - 0.5));
+	// const gdn_real val = (y - 0.5) * (y - 0.5) - (z - 0.5) * (z - 0.5);
+	// const gdn_real val = (y - 0.5) - (z - 0.5);
+	// const gdn_real val = 1.;
+	// const gdn_real val = 0.;
+	return val;
+}
+
+static gdn_real msi_df_d1(gdn_real y, gdn_real z)
+{
+	const gdn_real val =
+		-0.2e1 * 0.3141592654e1 * exp(-0.2e1 * 0.3141592654e1 * (y - 0.5e0)) *
+			sin(0.2e1 * 0.3141592654e1 * (z - 0.5e0)) +
+		0.2e1 * exp(-0.2e1 * 0.3141592654e1 * (z - 0.5e0)) * 0.3141592654e1 *
+			cos(0.2e1 * 0.3141592654e1 * (y - 0.5e0));
+	// const gdn_real val =  2. * (y - 0.5);
+	// const gdn_real val = 1.;
+	// const gdn_real val = 0.;
+	return val;
+}
+
+static gdn_real msi_df_d2(gdn_real y, gdn_real z)
+{
+	const gdn_real val =
+		0.2e1 * exp(-0.2e1 * 0.3141592654e1 * (y - 0.5e0)) * 0.3141592654e1 *
+			cos(0.2e1 * 0.3141592654e1 * (z - 0.5e0)) -
+		0.2e1 * exp(-0.2e1 * 0.3141592654e1 * (z - 0.5e0)) * 0.3141592654e1 *
+			sin(0.2e1 * 0.3141592654e1 * (y - 0.5e0));
+	// const gdn_real val = -2. * (z - 0.5);
+	// const gdn_real val = -1.;
+	// const gdn_real val = 0.;
+	return val;
+}
+
+/**
+ * \fn maxwell_imposed_macro_cos
+ * \brief Imposed oscillatory solution of frequence nu for Maxwell's equations.
+ *        This solution is constructed using the method of characteristics, 
+ *        therby it is an exact solution for all (x, t) of Maxwell's equations.
+ * \param[in] x    Position vector
+ * \param[in] t    Time
+ * \param[inout] w Macro state
+ */
+void maxwell_imposed_stationary(const gdn_real *x, const gdn_real t,
+								gdn_real *w)
+{
+	const sigma = 0;
+	const gdn_real e = exp(-sigma * t);
+	w[0] = (msi_g(x[0]) + msi_f(x[1], x[2])) * e;
+	w[1] = (msi_g(x[1]) + msi_f(x[2], x[0])) * e;
+	w[2] = (msi_g(x[2]) + msi_f(x[0], x[1])) * e;
+
+	w[3] = (msi_df_d1(x[2], x[0]) - msi_df_d2(x[0], x[1])) * t;
+	w[4] = (msi_df_d1(x[0], x[1]) - msi_df_d2(x[1], x[2])) * t;
+	w[5] = (msi_df_d1(x[1], x[2]) - msi_df_d2(x[2], x[0])) * t;
+}
+
 /**
  * \fn maxwell_imposed_macro_cos
  * \brief Imposed oscillatory solution of frequence nu for Maxwell's equations.

@@ -27,6 +27,5 @@ gdn_real toc(struct timeval *start)
 							end.tv_usec - start->tv_usec) /
 						   1.e6;
 
-	printf("[Info] Elapsed CPU Time = %f (s)\n", delta);
 	return delta;
 }

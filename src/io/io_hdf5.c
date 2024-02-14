@@ -157,9 +157,13 @@ void io_hdf5_dump_data(gdn_simulation *simu, char *data_filename_prefix)
 
 	int data_filename_len =
 		strlen(data_filename_prefix) + 1;
-	char *data_filename = (char *)malloc(data_filename_len * sizeof(char));
+	
+	
+	int ext_len = strlen(".hdf5");
 
-	sprintf(data_filename, "%s.hdf5", data_filename_prefix);
+	char *data_filename = (char *)malloc((data_filename_len + ext_len) * sizeof(char));
+
+	snprintf(data_filename, data_filename_len + ext_len, "%s.hdf5", data_filename_prefix);
 	printf("%s\n", data_filename);
 	file_id = H5Fcreate(data_filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
@@ -176,6 +180,7 @@ void io_hdf5_dump_data(gdn_simulation *simu, char *data_filename_prefix)
 		int ie = simu->tt->node2elem[max_node2elem *
 									 in]; // get the first element of the list
 		int iloc = 0;
+		//Get local node id
 		while (simu->tt->elem2qnode[ie * NQN + iloc] != in) {
 			iloc++;
 		}
@@ -239,7 +244,7 @@ void io_hdf5_write_xdmf(gdn_simulation *simu, char *filename,
 						char *geo_filename, char *data_filename_prefix)
 {
 	int data_filename_len =
-		strlen(data_filename_prefix) + 1;
+		strlen(data_filename_prefix) + 5;
 	char *data_filename = (char *)malloc(data_filename_len * sizeof(char));
 
 	FILE *xdmffile;

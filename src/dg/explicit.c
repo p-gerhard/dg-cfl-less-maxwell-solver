@@ -9,15 +9,18 @@
 #undef NDEBUG
 #include <assert.h>
 #include <math.h>
+#include <sys/time.h>
 
+#include <gdon3d.h>
 #include <mesh/t10.h>
 #include <models/model.h>
 #include <maths/sparse.h>
+#include <simulation/simulation.h>
+#include <utils/timing.h>
 
 #include "dg.h"
-#include <gdon3d.h>
-#include "implicit.h"
-#include <simulation/simulation.h>
+#include "explicit.h"
+
 
 static void assemble_rk3(gdn_simulation *simu, gdn_sparse *dg_mass,
 						 gdn_sparse *dg_flux[])
@@ -33,7 +36,7 @@ static void assemble_rk3(gdn_simulation *simu, gdn_sparse *dg_mass,
 	sparse_csr_allocate(dg_flux[0], true);
 }
 
-void dg_explicit_solve_rk3(gdn_simulation *simu)
+void dg_solve_rk3(gdn_simulation *simu)
 {
 	const gdn_real A[3] = { 0., -5. / 9., -153. / 128. };
 	const gdn_real B[3] = { 1. / 3., 15. / 16., 8. / 15. };
@@ -58,9 +61,14 @@ void dg_explicit_solve_rk3(gdn_simulation *simu)
 	gdn_sparse *dg_flux[nb_mat];
 	dg_flux[0] = sparse_coo_init(size);
 
+	struct timeval start;
+	tic(&start);
 	assemble_rk3(simu, dg_mass, dg_flux);
+	simu->cpu_assembly_t = toc(&start);
+	
 	dg_init_sol_macro(simu);
 
+	tic(&start);
 	while (t < tmax - 1e-12) {
 		simu->t = t;
 		/* RK3 STEP */
@@ -95,6 +103,7 @@ void dg_explicit_solve_rk3(gdn_simulation *simu)
 		t += dt;
 	}
 	simu->t = t;
+	simu->cpu_running_t = toc(&start);
 
 	assert(fabs(t - tmax) < 1e-12);
 	assert(iter == simu->itermax);

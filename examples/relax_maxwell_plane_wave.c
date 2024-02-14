@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 
+ * 2019-2021 Philippe Helluy <helluy@math.unistra.fr>
+ * 2020-2021 Pierre Gerhard <pierre.gerhard@gmail.com>
+ *
+ * gdon3d is free software; you can redistribute it and/or modify
+ * it under the terms of the GPLv3 license. See LICENSE for details.
+ */
 #undef NDEBUG
 #include <stdio.h>
 #include <math.h>
@@ -7,6 +15,7 @@
 #include <dg/dg.h>
 #include <models/model.h>
 #include <models/maxwell.h>
+#include <models/d3q4.h>
 #include <io/io_hdf5.h>
 #include <simulation/simulation.h>
 #include <utils/timing.h>
@@ -38,11 +47,7 @@ void static imposed_macro_cos(const gdn_real *x, const gdn_real t, gdn_real *w)
 	w[5] = 0;
 }
 
-
-
-int test_maxwell_rk3_plane_wave(void);
-
-int test_maxwell_rk3_plane_wave(void)
+int relax_maxwell_plane_wave(void)
 {
 	bool export_xdmf = true;
 
@@ -54,8 +59,10 @@ int test_maxwell_rk3_plane_wave(void)
 	model.get_num_flux = maxwell_num_flux_upwind;
 	model.get_num_flux_boundary = maxwell_num_flux_upwind;
 	model.get_imposed_data = imposed_macro_cos;
-	model.use_relax_scheme = false;
-	model.lambda = 1.0;
+    model.get_proj_pos     = maxwell_get_proj_pos_null_prod_w;
+    model.get_proj_neg     = maxwell_get_proj_neg_prod_w;
+    model.use_relax_scheme = true;
+    d3q4_set_model(&model);
 
 	char *mesh_name = "../data/mesh/t4_cube_8.msh";
 
@@ -69,40 +76,14 @@ int test_maxwell_rk3_plane_wave(void)
 	utils_l2_time_convergence(&model, 4, mesh_name, dt, tmax, export_xdmf);
 	
 	return 1;
-	
-	
-	struct timeval start;
-	mesh_read_from_msh22_file(&mesh, mesh_name);
-	mesh_build_connectivity(&mesh);
-	simulation_init(&mesh, &model, &simu);
-	simulation_set_time_parameters(&simu, tmax, dt, -1);
-	simulation_display_info(&simu);
-	tic(&start);
-	dg_init_sol_macro(&simu);
-	// dg_solve(&simu);
-	toc(&start);
-
-	/* Compute L2 error */
-	gdn_real error_l2 = simulation_error_l2(&simu);
-	simulation_dump_info(0, &simu, error_l2, 0);
-  
-  if (export_xdmf) {
-	  mesh_raf = mesh_raf * 2;
-	  int iternb = (int)floor(tmax / dt);
-	  char filename[1024];
-	  snprintf(filename, 1024, "%s", base_name);
-	  io_save_all(&simu, filename, iternb);
-  }
-  simulation_free(&simu);
-  return 1;
 }
 
 int main(void)
 {
-	int resu = test_maxwell_rk3_plane_wave();
+	int resu = relax_maxwell_plane_wave();
 	if (resu)
-		printf("[Info] - test_maxwell_rk3_plane_wave : OK\n");
+		printf("[Info] - relax_maxwell_plane_wave : OK\n");
 	else
-		printf("[Info] -  test_maxwell_rk3_plane_wave : FAILED\n");
+		printf("[Info] -  relax_maxwell_plane_wave : FAILED\n");
 	return !resu;
 }

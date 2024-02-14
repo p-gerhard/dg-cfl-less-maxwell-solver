@@ -6,12 +6,12 @@
  * gdon3d is free software; you can redistribute it and/or modify
  * it under the terms of the GPLv3 license. See LICENSE for details.
  */
-#ifndef EXPLICIT_H
-#define EXPLICIT_H
+#ifndef DG_EXPLICIT_H
+#define DG_EXPLICIT_H
 
 #include <simulation/simulation.h>
 
-void dg_explicit_solve_rk3(gdn_simulation *simu);
+void dg_solve_rk3(gdn_simulation *simu);
 
 #endif 
  

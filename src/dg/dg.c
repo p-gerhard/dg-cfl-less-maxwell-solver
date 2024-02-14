@@ -18,15 +18,14 @@
 #include <models/model.h>
 
 #include "explicit.h"
-#include "implicit.h"
+#include "relaxation.h"
 
 void dg_solve(gdn_simulation *simu)
 {
 	if (simu->use_kinetic_scheme) {
-		dg_implicit_solve_theta_scheme_relax_v2(simu);
-		// dg_implicit_solve_theta_scheme_relax_v1(simu);
+		dg_solve_relaxation(simu);
 	} else {
-		dg_explicit_solve_rk3(simu);
+		dg_solve_rk3(simu);
 	}
 }
 

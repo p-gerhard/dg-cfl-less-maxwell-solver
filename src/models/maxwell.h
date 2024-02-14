@@ -11,6 +11,9 @@
 
 #include <gdon3d.h>
 
+void maxwell_imposed_stationary(const gdn_real *x, const gdn_real t,
+								gdn_real *w);
+
 void maxwell_imposed_macro_cos(const gdn_real *x, const gdn_real t,
 							   gdn_real *w);
 

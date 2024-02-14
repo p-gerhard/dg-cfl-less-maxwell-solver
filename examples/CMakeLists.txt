@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.13)
 
-add_executable(test_rk3_maxwell_plane_wave maxwell_plane_wave_rk3.c)
+add_executable(rk3_maxwell_plane_wave rk3_maxwell_plane_wave.c)
+target_link_libraries(rk3_maxwell_plane_wave PRIVATE gdon3d)
 
-target_link_libraries(test_rk3_maxwell_plane_wave PRIVATE gdon3d)
+add_executable(relax_maxwell_plane_wave relax_maxwell_plane_wave.c)
+target_link_libraries(relax_maxwell_plane_wave PRIVATE gdon3d)
+
+add_executable(relax_maxwell_stationary_wave relax_maxwell_stationary_wave.c)
+target_link_libraries(relax_maxwell_stationary_wave PRIVATE gdon3d)
